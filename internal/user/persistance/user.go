@@ -28,6 +28,10 @@ func (p userPersistance) GetOne(query interface{}) (data *model.User, err error)
 
 func (p userPersistance) GetAll(query, options interface{}) (data []*model.User, err error) {
 	qResult, err := p.coll.Find(context.Background(), query)
+	if err != nil {
+		return
+	}
+	data = make([]*model.User, 0)
 	err = qResult.Decode(data)
 	return
 }
@@ -39,19 +43,25 @@ func (p userPersistance) Count(query interface{}) (data *int64, err error) {
 
 func (p userPersistance) Save(entity *model.User) (data *model.User, err error) {
 	id := entity.ID
-	if id == "" {
+	if id == model.NilID {
 		qResult, err := p.coll.InsertOne(context.Background(), entity)
 		if err != nil {
 			return nil, err
 		}
-		id = qResult.InsertedID.(string)
+		id = qResult.InsertedID.(model.ID)
 	} else {
-		_, err := p.coll.UpdateByID(context.Background(), entity.ID, entity)
+		qResult, err := p.coll.UpdateByID(context.Background(), entity.ID, entity)
 		if err != nil {
 			return nil, err
 		}
+		id = qResult.UpsertedID.(model.ID)
 	}
-	// qResult, err := p.coll.FindOne(&model.User{ID: id})
+	qResult := p.coll.FindOne(context.Background(), &model.User{ID: id})
+	if err = qResult.Err(); err != nil {
+		return
+	}
+	err = qResult.Decode(data)
+	return
 }
 
 func (p userPersistance) Update(query interface{}, update *model.User, options interface{}) (data []*model.User, err error) {

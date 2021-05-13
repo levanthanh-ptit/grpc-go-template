@@ -62,6 +62,8 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 	return
 }
 
+func (s *userGrpcServer) CreateUser(ctx context.Context, in *user)
+
 func (s *userGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
 	return &user_pb.UserResponse{Id: in.Id, Name: "aaaaaaa"}, nil
 }
