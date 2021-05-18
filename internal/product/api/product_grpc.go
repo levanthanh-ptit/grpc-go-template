@@ -11,12 +11,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-type userGrpcServer struct {
-	user_pb.UnimplementedUserServer
+type usersGrpcServer struct {
+	user_pb.UnimplementedUsersServer
 }
 
-func newUserGrpcServer() *userGrpcServer {
-	return &userGrpcServer{}
+func newUsersGrpcServer() *usersGrpcServer {
+	return &usersGrpcServer{}
 }
 
 func InitUserGrpcServer() (conn *grpc.ClientConn) {
@@ -27,7 +27,7 @@ func InitUserGrpcServer() (conn *grpc.ClientConn) {
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	user_pb.RegisterUserServer(s, newUserGrpcServer())
+	user_pb.RegisterUsersServer(s, newUsersGrpcServer())
 	// Serve gRPC Server
 	log.Println("User gRPC - Started on 0.0.0.0:8080")
 	go func() {
@@ -49,7 +49,7 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := user_pb.RegisterUserHandler(context.Background(), gwmux, conn)
+	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
 	}
@@ -62,6 +62,6 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 	return
 }
 
-func (s *userGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
-	return &user_pb.UserResponse{Id: in.Id, Name: "aaaaaaa"}, nil
+func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
+	return &user_pb.UserResponse{Data: &user_pb.User{}}, nil
 }

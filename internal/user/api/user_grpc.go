@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"grpc-go-templete/internal/user/helper"
 	"grpc-go-templete/internal/user/service"
 	"grpc-go-templete/pkg/pb/user_pb"
 	"log"
@@ -13,7 +14,7 @@ import (
 )
 
 type userGrpcServer struct {
-	user_pb.UnimplementedUserServer
+	user_pb.UnimplementedUsersServer
 	userService *service.UserService
 }
 
@@ -31,7 +32,7 @@ func InitUserGrpcServer(userService *service.UserService) (conn *grpc.ClientConn
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	user_pb.RegisterUserServer(s, newUserGrpcServer(userService))
+	user_pb.RegisterUsersServer(s, newUserGrpcServer(userService))
 	// Serve gRPC Server
 	log.Println("User gRPC - Started on 0.0.0.0:8080")
 	go func() {
@@ -53,7 +54,7 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := user_pb.RegisterUserHandler(context.Background(), gwmux, conn)
+	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
 	}
@@ -66,10 +67,21 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 	return
 }
 
-func (s *userGrpcServer) CreateUser(ctx context.Context, in *user_pb.UserRequest) {
-
+func (s *userGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*user_pb.User, error) {
+	user, err := s.userService.CreateUser(helper.ToUser(in))
+	if err != nil {
+		return nil, err
+	}
+	resp := &user_pb.User{}
+	return resp, nil
 }
 
 func (s *userGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
-	return &user_pb.UserResponse{Id: in.Id, Name: "aaaaaaa"}, nil
+	resp := &user_pb.UserResponse{}
+	return resp, nil
+}
+
+func (s *userGrpcServer) GetUserList(ctx context.Context, in *user_pb.UserListRequest) (*user_pb.UserListResponse, error) {
+	resp := &user_pb.UserListResponse{}
+	return resp, nil
 }
