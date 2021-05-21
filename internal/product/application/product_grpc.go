@@ -15,16 +15,18 @@ import (
 
 type productsGrpcServer struct {
 	product_pb.UnimplementedProductsServer
+	conn *grpc.ClientConn
+
 	productService *service.ProductService
 }
 
-func newProductsGrpcServer(productService *service.ProductService) *productsGrpcServer {
+func NewProductsGrpcServer(productService *service.ProductService) *productsGrpcServer {
 	return &productsGrpcServer{
 		productService: productService,
 	}
 }
 
-func InitGrpcServer(host, port string, productService *service.ProductService) (conn *grpc.ClientConn) {
+func (productServer *productsGrpcServer) StartGrpcServer(host, port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to listen:", err)
@@ -32,13 +34,13 @@ func InitGrpcServer(host, port string, productService *service.ProductService) (
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	product_pb.RegisterProductsServer(s, newProductsGrpcServer(productService))
+	product_pb.RegisterProductsServer(s, productServer)
 	// Serve gRPC Server
 	log.Printf("Product gRPC - Started on %s:%s", host, port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
-	conn, err = grpc.DialContext(
+	productServer.conn, err = grpc.DialContext(
 		context.Background(),
 		fmt.Sprintf("%s:%s", host, port),
 		grpc.WithBlock(),
@@ -47,14 +49,13 @@ func InitGrpcServer(host, port string, productService *service.ProductService) (
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to dial server:", err)
 	}
-	return
 }
 
-func InitGrpcGetway(host, port string, conn *grpc.ClientConn) (gwServer *http.Server) {
+func (productServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, conn)
+	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, productServer.conn)
 	if err != nil {
 		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
 	}

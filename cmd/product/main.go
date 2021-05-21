@@ -24,6 +24,7 @@ func main() {
 	grpcGwPort := "8092"
 
 	// Init Application
-	conn := application.InitGrpcServer(host, grpcPort, productService)
-	application.InitGrpcGetway(host, grpcGwPort, conn)
+	productGrpcServer := application.NewProductsGrpcServer(productService)
+	productGrpcServer.StartGrpcServer(host, grpcPort)
+	productGrpcServer.StartGrpcGetway(host, grpcGwPort)
 }

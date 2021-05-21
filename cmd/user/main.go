@@ -19,11 +19,13 @@ func main() {
 	// Init services
 	userService := service.NewUserService(userRepo)
 
+	// Application enums
 	host := "localhost"
 	grpcPort := "8081"
 	grpcGwPort := "8091"
 
 	// Init Application
-	conn := application.InitUserGrpcServer(host, grpcPort, userService)
-	application.InitGrpcGetway(host, grpcGwPort, conn)
+	userGrpcServer := application.NewUserGrpcServer(userService)
+	userGrpcServer.StartUserGrpcServer(host, grpcPort)
+	userGrpcServer.StartGrpcGetwayServer(host, grpcGwPort)
 }

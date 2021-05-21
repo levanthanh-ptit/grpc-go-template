@@ -15,16 +15,18 @@ import (
 
 type userGrpcServer struct {
 	user_pb.UnimplementedUsersServer
+	conn *grpc.ClientConn
+
 	userService *service.UserService
 }
 
-func newUserGrpcServer(userService *service.UserService) *userGrpcServer {
+func NewUserGrpcServer(userService *service.UserService) *userGrpcServer {
 	return &userGrpcServer{
 		userService: userService,
 	}
 }
 
-func InitUserGrpcServer(host, port string, userService *service.UserService) (conn *grpc.ClientConn) {
+func (userServer *userGrpcServer) StartUserGrpcServer(host, port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to listen:", err)
@@ -32,13 +34,13 @@ func InitUserGrpcServer(host, port string, userService *service.UserService) (co
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	user_pb.RegisterUsersServer(s, newUserGrpcServer(userService))
+	user_pb.RegisterUsersServer(s, userServer)
 	// Serve gRPC Server
 	log.Printf("User gRPC - Started on %s:%s", host, port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
-	conn, err = grpc.DialContext(
+	userServer.conn, err = grpc.DialContext(
 		context.Background(),
 		fmt.Sprintf("%s:%s", host, port),
 		grpc.WithBlock(),
@@ -47,14 +49,13 @@ func InitUserGrpcServer(host, port string, userService *service.UserService) (co
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to dial server:", err)
 	}
-	return
 }
 
-func InitGrpcGetway(host, port string, conn *grpc.ClientConn) (gwServer *http.Server) {
+func (userServer *userGrpcServer) StartGrpcGetwayServer(host, port string) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, conn)
+	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, userServer.conn)
 	if err != nil {
 		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
 	}
