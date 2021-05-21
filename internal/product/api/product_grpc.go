@@ -2,7 +2,9 @@ package api
 
 import (
 	"context"
-	"grpc-go-templete/pkg/pb/user_pb"
+	"fmt"
+	"grpc-go-templete/internal/product/service"
+	"grpc-go-templete/pkg/pb/product_pb"
 	"log"
 	"net"
 	"net/http"
@@ -11,57 +13,60 @@ import (
 	"google.golang.org/grpc"
 )
 
-type usersGrpcServer struct {
-	user_pb.UnimplementedUsersServer
+type productsGrpcServer struct {
+	product_pb.UnimplementedProductsServer
+	productService *service.ProductService
 }
 
-func newUsersGrpcServer() *usersGrpcServer {
-	return &usersGrpcServer{}
+func newProductsGrpcServer(productService *service.ProductService) *productsGrpcServer {
+	return &productsGrpcServer{
+		productService: productService,
+	}
 }
 
-func InitUserGrpcServer() (conn *grpc.ClientConn) {
-	lis, err := net.Listen("tcp", "localhost:8080")
+func InitGrpcServer(host, port string, productService *service.ProductService) (conn *grpc.ClientConn) {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
-		log.Fatalln("User gRPC - Failed to listen:", err)
+		log.Fatalln("Product gRPC - Failed to listen:", err)
 	}
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	user_pb.RegisterUsersServer(s, newUsersGrpcServer())
+	product_pb.RegisterProductsServer(s, newProductsGrpcServer(productService))
 	// Serve gRPC Server
-	log.Println("User gRPC - Started on 0.0.0.0:8080")
+	log.Printf("Product gRPC - Started on %s:%s", host, port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 	conn, err = grpc.DialContext(
 		context.Background(),
-		"0.0.0.0:8080",
+		fmt.Sprintf("%s:%s", host, port),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatalln("User gRPC - Failed to dial server:", err)
+		log.Fatalln("Product gRPC - Failed to dial server:", err)
 	}
 	return
 }
 
-func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
+func InitGrpcGetway(host, port string, conn *grpc.ClientConn) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, conn)
+	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, conn)
 	if err != nil {
-		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
+		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
 	}
 	gwServer = &http.Server{
-		Addr:    ":8090",
+		Addr:    fmt.Sprintf("%s:%s", host, port),
 		Handler: gwmux,
 	}
-	log.Println("User gRPC-Gateway - Started on http://0.0.0.0:8090")
+	log.Printf("Product gRPC-Gateway - Started on http://%s:%s", host, port)
 	log.Fatalln(gwServer.ListenAndServe())
 	return
 }
 
-func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
-	return &user_pb.UserResponse{Data: &user_pb.User{}}, nil
+func (s *productsGrpcServer) GetProduct(ctx context.Context, in *product_pb.ProductRequest) (*product_pb.ProductResponse, error) {
+	return &product_pb.ProductResponse{Data: &product_pb.Product{}}, nil
 }

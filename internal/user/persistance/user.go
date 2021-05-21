@@ -14,7 +14,7 @@ type userPersistance struct {
 }
 
 func NewUserPersistance(db *mongo.Database) *userPersistance {
-	userCollection := db.Collection("user")
+	userCollection := db.Collection("users")
 	return &userPersistance{
 		coll: userCollection,
 	}
@@ -41,25 +41,17 @@ func (p userPersistance) Count(query interface{}) (data *int64, err error) {
 	return &count, err
 }
 
-func (p userPersistance) Save(entity *model.User) (data *model.User, err error) {
-	id := entity.ID
-	if id == model.NilID {
-		qResult, err := p.coll.InsertOne(context.Background(), entity)
-		if err != nil {
-			return nil, err
-		}
-		id = qResult.InsertedID.(model.ID)
-	} else {
-		qResult, err := p.coll.UpdateByID(context.Background(), entity.ID, entity)
-		if err != nil {
-			return nil, err
-		}
-		id = qResult.UpsertedID.(model.ID)
+func (p userPersistance) Create(entity *model.User) (data *model.User, err error) {
+	insertResult, err := p.coll.InsertOne(context.Background(), entity)
+	if err != nil {
+		return nil, err
 	}
+	id := insertResult.InsertedID.(model.ID)
 	qResult := p.coll.FindOne(context.Background(), &model.User{ID: id})
 	if err = qResult.Err(); err != nil {
 		return
 	}
+	data = &model.User{}
 	err = qResult.Decode(data)
 	return
 }

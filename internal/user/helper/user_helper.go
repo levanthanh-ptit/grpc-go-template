@@ -9,17 +9,19 @@ import (
 
 func ToUserGRPC(user *model.User) *user_pb.User {
 	return &user_pb.User{
-		Id:       user.ID.ToString(),
-		Name:     "",
-		Username: "",
-		Old:      0,
+		Id:       user.ID.Hex(),
+		Name:     *user.Name,
+		Username: *user.Username,
+		Old:      *user.Old,
 	}
 }
 
 func ToUser(user *user_pb.User) *model.User {
 	id, _ := primitive.ObjectIDFromHex(user.Id)
 	return &model.User{
-		ID:   model.ID(id),
-		Name: &user.Name,
+		ID:       model.ID(id),
+		Name:     &user.Name,
+		Username: &user.Username,
+		Old:      &user.Old,
 	}
 }

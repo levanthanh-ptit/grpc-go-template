@@ -31,7 +31,41 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_Product_GetProduct_0(ctx context.Context, marshaler runtime.Marshaler, client ProductClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Products_CreateProduct_0(ctx context.Context, marshaler runtime.Marshaler, client ProductsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Product
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateProduct(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Products_CreateProduct_0(ctx context.Context, marshaler runtime.Marshaler, server ProductsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq Product
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateProduct(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_Products_GetProduct_0(ctx context.Context, marshaler runtime.Marshaler, client ProductsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ProductRequest
 	var metadata runtime.ServerMetadata
 
@@ -57,7 +91,7 @@ func request_Product_GetProduct_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func local_request_Product_GetProduct_0(ctx context.Context, marshaler runtime.Marshaler, server ProductServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Products_GetProduct_0(ctx context.Context, marshaler runtime.Marshaler, server ProductsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ProductRequest
 	var metadata runtime.ServerMetadata
 
@@ -83,24 +117,60 @@ func local_request_Product_GetProduct_0(ctx context.Context, marshaler runtime.M
 
 }
 
-// RegisterProductHandlerServer registers the http handlers for service Product to "mux".
-// UnaryRPC     :call ProductServer directly.
-// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProductHandlerFromEndpoint instead.
-func RegisterProductHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProductServer) error {
+var (
+	filter_Products_GetProductList_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
-	mux.Handle("GET", pattern_Product_GetProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+func request_Products_GetProductList_0(ctx context.Context, marshaler runtime.Marshaler, client ProductsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ProductListRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Products_GetProductList_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetProductList(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Products_GetProductList_0(ctx context.Context, marshaler runtime.Marshaler, server ProductsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ProductListRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Products_GetProductList_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetProductList(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+// RegisterProductsHandlerServer registers the http handlers for service Products to "mux".
+// UnaryRPC     :call ProductsServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProductsHandlerFromEndpoint instead.
+func RegisterProductsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProductsServer) error {
+
+	mux.Handle("POST", pattern_Products_CreateProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/product_pb.Product/GetProduct")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/product_pb.Products/CreateProduct")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Product_GetProduct_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Products_CreateProduct_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -108,16 +178,62 @@ func RegisterProductHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Product_GetProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Products_CreateProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Products_GetProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/product_pb.Products/GetProduct")
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Products_GetProduct_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Products_GetProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Products_GetProductList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/product_pb.Products/GetProductList")
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Products_GetProductList_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Products_GetProductList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterProductHandlerFromEndpoint is same as RegisterProductHandler but
+// RegisterProductsHandlerFromEndpoint is same as RegisterProductsHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterProductHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterProductsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -137,39 +253,79 @@ func RegisterProductHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterProductHandler(ctx, mux, conn)
+	return RegisterProductsHandler(ctx, mux, conn)
 }
 
-// RegisterProductHandler registers the http handlers for service Product to "mux".
+// RegisterProductsHandler registers the http handlers for service Products to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterProductHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterProductHandlerClient(ctx, mux, NewProductClient(conn))
+func RegisterProductsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterProductsHandlerClient(ctx, mux, NewProductsClient(conn))
 }
 
-// RegisterProductHandlerClient registers the http handlers for service Product
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProductClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProductClient"
+// RegisterProductsHandlerClient registers the http handlers for service Products
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProductsClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProductsClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ProductClient" to call the correct interceptors.
-func RegisterProductHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProductClient) error {
+// "ProductsClient" to call the correct interceptors.
+func RegisterProductsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProductsClient) error {
 
-	mux.Handle("GET", pattern_Product_GetProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Products_CreateProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/product_pb.Product/GetProduct")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/product_pb.Products/CreateProduct")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Product_GetProduct_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Products_CreateProduct_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Product_GetProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Products_CreateProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Products_GetProduct_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/product_pb.Products/GetProduct")
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Products_GetProduct_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Products_GetProduct_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_Products_GetProductList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/product_pb.Products/GetProductList")
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Products_GetProductList_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Products_GetProductList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -177,9 +333,17 @@ func RegisterProductHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Product_GetProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"products", "id"}, ""))
+	pattern_Products_CreateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"products"}, ""))
+
+	pattern_Products_GetProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"products", "id"}, ""))
+
+	pattern_Products_GetProductList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"products"}, ""))
 )
 
 var (
-	forward_Product_GetProduct_0 = runtime.ForwardResponseMessage
+	forward_Products_CreateProduct_0 = runtime.ForwardResponseMessage
+
+	forward_Products_GetProduct_0 = runtime.ForwardResponseMessage
+
+	forward_Products_GetProductList_0 = runtime.ForwardResponseMessage
 )

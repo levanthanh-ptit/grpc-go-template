@@ -8,18 +8,22 @@ import (
 
 func main() {
 	// Init Database
-	mongoProvider, err := persistance.NewMongoProvider("")
+	mongoProvider, err := persistance.NewMongoProvider("mongodb://localhost:27017")
 	if err != nil {
 		panic("DB not connect")
 	}
 
 	// Init repositories
-	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user"))
+	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
 
 	// Init services
 	userService := service.NewUserService(userRepo)
 
+	host := "localhost"
+	grpcPort := "8081"
+	grpcGwPort := "8091"
+
 	// Init Application
-	conn := api.InitUserGrpcServer(userService)
-	api.InitGrpcGetway(conn)
+	conn := api.InitUserGrpcServer(host, grpcPort, userService)
+	api.InitGrpcGetway(host, grpcGwPort, conn)
 }

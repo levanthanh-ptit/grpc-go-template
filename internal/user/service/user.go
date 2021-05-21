@@ -16,7 +16,7 @@ func NewUserService(userRepo repository.UserRepository) *UserService {
 }
 
 func (s UserService) CreateUser(user *model.User) (*model.User, error) {
-	return s.userRepo.Save(user)
+	return s.userRepo.Create(user)
 }
 
 func (s UserService) GetUserById(id model.ID) (*model.User, error) {

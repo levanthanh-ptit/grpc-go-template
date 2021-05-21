@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"grpc-go-templete/internal/user/helper"
 	"grpc-go-templete/internal/user/service"
 	"grpc-go-templete/pkg/pb/user_pb"
@@ -24,8 +25,8 @@ func newUserGrpcServer(userService *service.UserService) *userGrpcServer {
 	}
 }
 
-func InitUserGrpcServer(userService *service.UserService) (conn *grpc.ClientConn) {
-	lis, err := net.Listen("tcp", "localhost:8080")
+func InitUserGrpcServer(host, port string, userService *service.UserService) (conn *grpc.ClientConn) {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to listen:", err)
 	}
@@ -34,13 +35,13 @@ func InitUserGrpcServer(userService *service.UserService) (conn *grpc.ClientConn
 	// Attach the service to the server
 	user_pb.RegisterUsersServer(s, newUserGrpcServer(userService))
 	// Serve gRPC Server
-	log.Println("User gRPC - Started on 0.0.0.0:8080")
+	log.Printf("User gRPC - Started on %s:%s", host, port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 	conn, err = grpc.DialContext(
 		context.Background(),
-		"0.0.0.0:8080",
+		fmt.Sprintf("%s:%s", host, port),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -50,7 +51,7 @@ func InitUserGrpcServer(userService *service.UserService) (conn *grpc.ClientConn
 	return
 }
 
-func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
+func InitGrpcGetway(host, port string, conn *grpc.ClientConn) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
@@ -59,10 +60,10 @@ func InitGrpcGetway(conn *grpc.ClientConn) (gwServer *http.Server) {
 		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
 	}
 	gwServer = &http.Server{
-		Addr:    ":8090",
+		Addr:    fmt.Sprintf("%s:%s", host, port),
 		Handler: gwmux,
 	}
-	log.Println("User gRPC-Gateway - Started on http://0.0.0.0:8090")
+	log.Printf("User gRPC-Gateway - Started on http://%s:%s", host, port)
 	log.Fatalln(gwServer.ListenAndServe())
 	return
 }
@@ -72,7 +73,7 @@ func (s *userGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*use
 	if err != nil {
 		return nil, err
 	}
-	resp := &user_pb.User{}
+	resp := helper.ToUserGRPC(user)
 	return resp, nil
 }
 
