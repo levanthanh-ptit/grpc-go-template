@@ -1,4 +1,4 @@
-package api
+package application
 
 import (
 	"context"
@@ -65,8 +65,4 @@ func InitGrpcGetway(host, port string, conn *grpc.ClientConn) (gwServer *http.Se
 	log.Printf("Product gRPC-Gateway - Started on http://%s:%s", host, port)
 	log.Fatalln(gwServer.ListenAndServe())
 	return
-}
-
-func (s *productsGrpcServer) GetProduct(ctx context.Context, in *product_pb.ProductRequest) (*product_pb.ProductResponse, error) {
-	return &product_pb.ProductResponse{Data: &product_pb.Product{}}, nil
 }

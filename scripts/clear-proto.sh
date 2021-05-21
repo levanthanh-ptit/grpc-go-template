@@ -1,2 +1,1 @@
-##rm -rf $(find ./pkg/api -iname "*pb.go") $(find ./pkg/api -iname "*pb.gw.go")
-rm -rf pkg/pb/*
+rm -rf $(find ./pkg/pb -iname "*pb.go") $(find ./pkg/pb -iname "*pb.gw.go")

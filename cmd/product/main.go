@@ -1,7 +1,7 @@
 package main
 
 import (
-	"grpc-go-templete/internal/product/api"
+	"grpc-go-templete/internal/product/application"
 	"grpc-go-templete/internal/product/persistance"
 	"grpc-go-templete/internal/product/service"
 )
@@ -24,6 +24,6 @@ func main() {
 	grpcGwPort := "8092"
 
 	// Init Application
-	conn := api.InitGrpcServer(host, grpcPort, productService)
-	api.InitGrpcGetway(host, grpcGwPort, conn)
+	conn := application.InitGrpcServer(host, grpcPort, productService)
+	application.InitGrpcGetway(host, grpcGwPort, conn)
 }
