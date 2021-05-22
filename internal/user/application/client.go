@@ -7,6 +7,6 @@ import (
 )
 
 func (usersServer *usersGrpcServer) RegisterProductsClient(address string) (conn *grpc.ClientConn, err error) {
-	conn, usersServer.ProductsClient, err = product_pb.GetClient(address, grpc.WithBlock(), grpc.WithInsecure())
+	conn, usersServer.ProductsClient, err = product_pb.GetClient(address, grpc.WithInsecure())
 	return
 }

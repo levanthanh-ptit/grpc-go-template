@@ -19,12 +19,18 @@ func main() {
 	// Init services
 	productService := service.NewProductService(productRepo)
 
+	// Application enums
 	host := "localhost"
 	grpcPort := "8082"
 	grpcGwPort := "8092"
 
 	// Init Application
-	productGrpcServer := application.NewProductsGrpcServer(productService)
-	productGrpcServer.StartGrpcServer(host, grpcPort)
+	productGrpcServer := application.NewProductsGrpcServer(host, grpcPort, productService)
+
+	// Start GRPC server
+	go productGrpcServer.StartGrpcServer()
+
+	// Start GRPC Getway
 	productGrpcServer.StartGrpcGetway(host, grpcGwPort)
+
 }

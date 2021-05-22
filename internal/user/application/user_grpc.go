@@ -16,7 +16,8 @@ import (
 
 type usersGrpcServer struct {
 	user_pb.UnimplementedUsersServer
-	conn *grpc.ClientConn
+	host string
+	port string
 
 	// Clients
 	ProductsClient product_pb.ProductsClient
@@ -25,14 +26,17 @@ type usersGrpcServer struct {
 	userService *service.UserService
 }
 
-func NewUserGrpcServer(userService *service.UserService) *usersGrpcServer {
+func NewUserGrpcServer(host, port string, userService *service.UserService) *usersGrpcServer {
 	return &usersGrpcServer{
+		host: host,
+		port: port,
+
 		userService: userService,
 	}
 }
 
-func (usersServer *usersGrpcServer) StartUserGrpcServer(host, port string) {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
+func (usersServer *usersGrpcServer) StartUserGrpcServer() {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", usersServer.host, usersServer.port))
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to listen:", err)
 	}
@@ -41,26 +45,26 @@ func (usersServer *usersGrpcServer) StartUserGrpcServer(host, port string) {
 	// Attach the service to the server
 	user_pb.RegisterUsersServer(s, usersServer)
 	// Serve gRPC Server
-	log.Printf("User gRPC - Started on %s:%s", host, port)
-	go func() {
-		log.Fatalln(s.Serve(lis))
-	}()
-	usersServer.conn, err = grpc.DialContext(
+	log.Printf("User gRPC - Started on %s:%s", usersServer.host, usersServer.port)
+	log.Fatalln(s.Serve(lis))
+}
+
+func (usersServer *usersGrpcServer) StartGrpcGetwayServer(host, port string) (gwServer *http.Server) {
+	// Dial to GRPC server
+	grpcConn, err := grpc.DialContext(
 		context.Background(),
-		fmt.Sprintf("%s:%s", host, port),
+		fmt.Sprintf("%s:%s", usersServer.host, usersServer.port),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
 		log.Fatalln("User gRPC - Failed to dial server:", err)
 	}
-}
-
-func (usersServer *usersGrpcServer) StartGrpcGetwayServer(host, port string) (gwServer *http.Server) {
+	defer grpcConn.Close()
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := user_pb.RegisterUsersHandler(context.Background(), gwmux, usersServer.conn)
+	err = user_pb.RegisterUsersHandler(context.Background(), gwmux, grpcConn)
 	if err != nil {
 		log.Fatalln("User gRPC-Gateway - Failed to register gateway:", err)
 	}

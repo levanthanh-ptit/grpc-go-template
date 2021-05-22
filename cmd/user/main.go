@@ -27,17 +27,23 @@ func main() {
 	productServerAddress := "localhost:8082"
 
 	// Init Application
-	userGrpcServer := application.NewUserGrpcServer(userService)
+	userGrpcServer := application.NewUserGrpcServer(host, grpcPort, userService)
+
+	// Start GRPC server
+	go userGrpcServer.StartUserGrpcServer()
 
 	// Init Clients
 	productConn, err := userGrpcServer.RegisterProductsClient(productServerAddress)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer productConn.Close()
 
-	// Start server
-	userGrpcServer.StartUserGrpcServer(host, grpcPort)
+	var closeClients = func() {
+		productConn.Close()
+	}
+	defer closeClients()
+
+	// Start GRPC Getway
 	userGrpcServer.StartGrpcGetwayServer(host, grpcGwPort)
 
 }

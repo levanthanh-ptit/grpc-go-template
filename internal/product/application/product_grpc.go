@@ -15,19 +15,23 @@ import (
 
 type productsGrpcServer struct {
 	product_pb.UnimplementedProductsServer
-	conn *grpc.ClientConn
+	host string
+	port string
 
 	productService *service.ProductService
 }
 
-func NewProductsGrpcServer(productService *service.ProductService) *productsGrpcServer {
+func NewProductsGrpcServer(host, port string, productService *service.ProductService) *productsGrpcServer {
 	return &productsGrpcServer{
+		host: host,
+		port: port,
+
 		productService: productService,
 	}
 }
 
-func (productsServer *productsGrpcServer) StartGrpcServer(host, port string) {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
+func (productsServer *productsGrpcServer) StartGrpcServer() {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", productsServer.host, productsServer.port))
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to listen:", err)
 	}
@@ -36,26 +40,26 @@ func (productsServer *productsGrpcServer) StartGrpcServer(host, port string) {
 	// Attach the service to the server
 	product_pb.RegisterProductsServer(s, productsServer)
 	// Serve gRPC Server
-	log.Printf("Product gRPC - Started on %s:%s", host, port)
-	go func() {
-		log.Fatalln(s.Serve(lis))
-	}()
-	productsServer.conn, err = grpc.DialContext(
+	log.Printf("Product gRPC - Started on %s:%s", productsServer.host, productsServer.port)
+	log.Fatalln(s.Serve(lis))
+}
+
+func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
+	// Dial to GRPC server
+	grpcConn, err := grpc.DialContext(
 		context.Background(),
-		fmt.Sprintf("%s:%s", host, port),
+		fmt.Sprintf("%s:%s", productsServer.host, productsServer.port),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to dial server:", err)
 	}
-}
-
-func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
+	defer grpcConn.Close()
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, productsServer.conn)
+	err = product_pb.RegisterProductsHandler(context.Background(), gwmux, grpcConn)
 	if err != nil {
 		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
 	}
