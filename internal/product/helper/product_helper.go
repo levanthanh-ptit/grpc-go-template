@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func ToUserGRPC(product *model.Product) *product_pb.Product {
+func ToProductGRPC(product *model.Product) *product_pb.Product {
 	return &product_pb.Product{
 		Id:   product.ID.Hex(),
 		Name: *product.Name,
