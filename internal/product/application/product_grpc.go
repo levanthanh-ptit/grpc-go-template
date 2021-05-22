@@ -26,7 +26,7 @@ func NewProductsGrpcServer(productService *service.ProductService) *productsGrpc
 	}
 }
 
-func (productServer *productsGrpcServer) StartGrpcServer(host, port string) {
+func (productsServer *productsGrpcServer) StartGrpcServer(host, port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to listen:", err)
@@ -34,13 +34,13 @@ func (productServer *productsGrpcServer) StartGrpcServer(host, port string) {
 	// Create a gRPC server object
 	s := grpc.NewServer()
 	// Attach the service to the server
-	product_pb.RegisterProductsServer(s, productServer)
+	product_pb.RegisterProductsServer(s, productsServer)
 	// Serve gRPC Server
 	log.Printf("Product gRPC - Started on %s:%s", host, port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
-	productServer.conn, err = grpc.DialContext(
+	productsServer.conn, err = grpc.DialContext(
 		context.Background(),
 		fmt.Sprintf("%s:%s", host, port),
 		grpc.WithBlock(),
@@ -51,11 +51,11 @@ func (productServer *productsGrpcServer) StartGrpcServer(host, port string) {
 	}
 }
 
-func (productServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
+func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
 	// Create http server
 	gwmux := runtime.NewServeMux()
 	// Attach the server dto server
-	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, productServer.conn)
+	err := product_pb.RegisterProductsHandler(context.Background(), gwmux, productsServer.conn)
 	if err != nil {
 		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
 	}

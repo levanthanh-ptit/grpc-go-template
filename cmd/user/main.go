@@ -4,6 +4,7 @@ import (
 	"grpc-go-templete/internal/user/application"
 	"grpc-go-templete/internal/user/persistance"
 	"grpc-go-templete/internal/user/service"
+	"log"
 )
 
 func main() {
@@ -23,9 +24,20 @@ func main() {
 	host := "localhost"
 	grpcPort := "8081"
 	grpcGwPort := "8091"
+	productServerAddress := "localhost:8082"
 
 	// Init Application
 	userGrpcServer := application.NewUserGrpcServer(userService)
+
+	// Init Clients
+	productConn, err := userGrpcServer.RegisterProductsClient(productServerAddress)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer productConn.Close()
+
+	// Start server
 	userGrpcServer.StartUserGrpcServer(host, grpcPort)
 	userGrpcServer.StartGrpcGetwayServer(host, grpcGwPort)
+
 }
