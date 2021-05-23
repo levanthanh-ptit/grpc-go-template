@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"grpc-go-templete/internal/user/helper"
 	"grpc-go-templete/pkg/pb/product_pb"
 	"grpc-go-templete/pkg/pb/user_pb"
@@ -18,7 +17,7 @@ func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*us
 		Name: *user.Name,
 	})
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	return resp, nil
 }
