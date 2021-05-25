@@ -2,7 +2,7 @@ package persistance
 
 import (
 	"context"
-	"grpc-go-templete/internal/user/model"
+	"grpc-go-templete/internal/user/domain"
 	"grpc-go-templete/internal/user/repository"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,18 +20,18 @@ func NewUserPersistance(db *mongo.Database) *userPersistance {
 	}
 }
 
-func (p userPersistance) GetOne(query interface{}) (data *model.User, err error) {
+func (p userPersistance) GetOne(query interface{}) (data *domain.User, err error) {
 	qResult := p.coll.FindOne(context.Background(), query)
 	err = qResult.Decode(data)
 	return
 }
 
-func (p userPersistance) GetAll(query, options interface{}) (data []*model.User, err error) {
+func (p userPersistance) GetAll(query, options interface{}) (data []*domain.User, err error) {
 	qResult, err := p.coll.Find(context.Background(), query)
 	if err != nil {
 		return
 	}
-	data = make([]*model.User, 0)
+	data = make([]*domain.User, 0)
 	err = qResult.Decode(data)
 	return
 }
@@ -41,21 +41,21 @@ func (p userPersistance) Count(query interface{}) (data *int64, err error) {
 	return &count, err
 }
 
-func (p userPersistance) Create(entity *model.User) (data *model.User, err error) {
+func (p userPersistance) Create(entity *domain.User) (data *domain.User, err error) {
 	insertResult, err := p.coll.InsertOne(context.Background(), entity)
 	if err != nil {
 		return nil, err
 	}
-	id := insertResult.InsertedID.(model.ID)
-	qResult := p.coll.FindOne(context.Background(), &model.User{ID: id})
+	id := insertResult.InsertedID.(domain.ID)
+	qResult := p.coll.FindOne(context.Background(), &domain.User{ID: id})
 	if err = qResult.Err(); err != nil {
 		return
 	}
-	data = &model.User{}
+	data = &domain.User{}
 	err = qResult.Decode(data)
 	return
 }
 
-func (p userPersistance) Update(query interface{}, update *model.User, options interface{}) (data []*model.User, err error) {
-	return []*model.User{}, nil
+func (p userPersistance) Update(query interface{}, update *domain.User, options interface{}) (data []*domain.User, err error) {
+	return []*domain.User{}, nil
 }

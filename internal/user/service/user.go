@@ -1,7 +1,7 @@
 package service
 
 import (
-	"grpc-go-templete/internal/user/model"
+	"grpc-go-templete/internal/user/domain"
 	"grpc-go-templete/internal/user/repository"
 )
 
@@ -11,14 +11,14 @@ type UserService struct {
 
 func NewUserService(userRepo repository.UserRepository) *UserService {
 	return &UserService{
-		userRepo,
+		userRepo: userRepo,
 	}
 }
 
-func (s UserService) CreateUser(user *model.User) (*model.User, error) {
+func (s UserService) CreateUser(user *domain.User) (*domain.User, error) {
 	return s.userRepo.Create(user)
 }
 
-func (s UserService) GetUserById(id model.ID) (*model.User, error) {
-	return s.userRepo.GetOne(model.User{ID: id})
+func (s UserService) GetUserById(id domain.ID) (*domain.User, error) {
+	return s.userRepo.GetOne(domain.User{ID: id})
 }

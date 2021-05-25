@@ -11,14 +11,24 @@ service Users {
             body: "*"
         };
     };
+
     rpc GetUser (UserRequest) returns (UserResponse) {
         option (google.api.http) = {
             get: "/users/{id}"
         };
     };
+
     rpc GetUserList (UserListRequest) returns (UserListResponse) {
         option (google.api.http) = {
             get: "/users"
+        };
+    };
+    
+    // Authentication and authorization
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/auth/login"
+            body: "*"
         };
     };
 }
@@ -27,7 +37,8 @@ message User {
     string id = 1;
     string name = 2;
     string username = 3;
-    int32 old = 4;
+    string password = 4;
+    int32 old = 5;
 }
 
 message UserRequest {
@@ -48,4 +59,14 @@ message UserListRequest {
 message UserListResponse {
     repeated User data = 1;
     int64 total = 2;
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    User profile = 1;
+    string token = 2;
 }
