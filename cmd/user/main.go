@@ -21,6 +21,7 @@ func main() {
 
 	// Init repositories
 	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
+	userRepo.CreateIndexes()
 
 	// Init services
 	userService := service.NewUserService(userRepo)
