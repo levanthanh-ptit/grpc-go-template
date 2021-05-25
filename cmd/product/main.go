@@ -4,11 +4,12 @@ import (
 	"grpc-go-templete/internal/product/application"
 	"grpc-go-templete/internal/product/persistance"
 	"grpc-go-templete/internal/product/service"
+	"grpc-go-templete/pkg/provider"
 )
 
 func main() {
 	// Init Database
-	mongoProvider, err := persistance.NewMongoProvider("mongodb://localhost:27017")
+	mongoProvider, err := provider.NewMongoProvider("mongodb://localhost:27017")
 	if err != nil {
 		panic("DB not connect")
 	}
@@ -21,8 +22,8 @@ func main() {
 
 	// Application enums
 	host := "localhost"
-	grpcPort := "8082"
-	grpcGwPort := "8092"
+	grpcPort := "8083"
+	grpcGwPort := "8093"
 
 	// Init Application
 	productGrpcServer := application.NewProductsGrpcServer(host, grpcPort, productService)

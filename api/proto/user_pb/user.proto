@@ -1,6 +1,6 @@
 syntax = "proto3";
 package user_pb;
-option go_package = "/user_pb";
+option go_package = "grpc-go-templete/pkg/pb/user_pb";
 
 import "google/api/annotations.proto";
 

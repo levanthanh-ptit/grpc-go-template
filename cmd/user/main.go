@@ -4,12 +4,13 @@ import (
 	"grpc-go-templete/internal/user/application"
 	"grpc-go-templete/internal/user/persistance"
 	"grpc-go-templete/internal/user/service"
+	"grpc-go-templete/pkg/provider"
 	"log"
 )
 
 func main() {
 	// Init Database
-	mongoProvider, err := persistance.NewMongoProvider("mongodb://localhost:27017")
+	mongoProvider, err := provider.NewMongoProvider("mongodb://localhost:27017")
 	if err != nil {
 		panic("DB not connect")
 	}
