@@ -2,7 +2,7 @@ package persistance
 
 import (
 	"context"
-	"grpc-go-templete/internal/product/model"
+	"grpc-go-templete/internal/product/domain"
 	"grpc-go-templete/internal/product/repository"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,18 +20,18 @@ func NewProductPersistance(db *mongo.Database) *productPersistance {
 	}
 }
 
-func (p productPersistance) GetOne(query interface{}) (data *model.Product, err error) {
+func (p productPersistance) GetOne(query interface{}) (data *domain.Product, err error) {
 	qResult := p.coll.FindOne(context.Background(), query)
 	err = qResult.Decode(data)
 	return
 }
 
-func (p productPersistance) GetAll(query, options interface{}) (data []*model.Product, err error) {
+func (p productPersistance) GetAll(query, options interface{}) (data []*domain.Product, err error) {
 	qResult, err := p.coll.Find(context.Background(), query)
 	if err != nil {
 		return
 	}
-	data = make([]*model.Product, 0)
+	data = make([]*domain.Product, 0)
 	err = qResult.Decode(data)
 	return
 }
@@ -41,21 +41,21 @@ func (p productPersistance) Count(query interface{}) (data *int64, err error) {
 	return &count, err
 }
 
-func (p productPersistance) Create(entity *model.Product) (data *model.Product, err error) {
+func (p productPersistance) Create(entity *domain.Product) (data *domain.Product, err error) {
 	insertResult, err := p.coll.InsertOne(context.Background(), entity)
 	if err != nil {
 		return nil, err
 	}
-	id := insertResult.InsertedID.(model.ID)
-	qResult := p.coll.FindOne(context.Background(), &model.Product{ID: id})
+	id := insertResult.InsertedID.(domain.ID)
+	qResult := p.coll.FindOne(context.Background(), &domain.Product{ID: id})
 	if err = qResult.Err(); err != nil {
 		return
 	}
-	data = &model.Product{}
+	data = &domain.Product{}
 	err = qResult.Decode(data)
 	return
 }
 
-func (p productPersistance) Update(query interface{}, update *model.Product, options interface{}) (data []*model.Product, err error) {
-	return []*model.Product{}, nil
+func (p productPersistance) Update(query interface{}, update *domain.Product, options interface{}) (data []*domain.Product, err error) {
+	return []*domain.Product{}, nil
 }

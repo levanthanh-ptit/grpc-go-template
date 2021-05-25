@@ -15,11 +15,15 @@ func main() {
 		panic("DB not connect")
 	}
 
+	// Init providers
+	bcryptProvider := provider.NewBcryptProvider("salt", 10)
+
 	// Init repositories
 	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
 
 	// Init services
 	userService := service.NewUserService(userRepo)
+	authService := service.NewAuthService(bcryptProvider, userRepo)
 
 	// Application enums
 	host := "localhost"
@@ -28,7 +32,7 @@ func main() {
 	productServerAddress := "localhost:8082"
 
 	// Init Application
-	userGrpcServer := application.NewUserGrpcServer(host, grpcPort, userService)
+	userGrpcServer := application.NewUserGrpcServer(host, grpcPort, userService, authService)
 
 	// Start GRPC server
 	go userGrpcServer.StartUserGrpcServer()

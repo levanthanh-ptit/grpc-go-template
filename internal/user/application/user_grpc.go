@@ -24,14 +24,16 @@ type usersGrpcServer struct {
 
 	// Services
 	userService *service.UserService
+	authService *service.AuthService
 }
 
-func NewUserGrpcServer(host, port string, userService *service.UserService) *usersGrpcServer {
+func NewUserGrpcServer(host, port string, userService *service.UserService, authService *service.AuthService) *usersGrpcServer {
 	return &usersGrpcServer{
 		host: host,
 		port: port,
 
 		userService: userService,
+		authService: authService,
 	}
 }
 
