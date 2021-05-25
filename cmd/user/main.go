@@ -17,13 +17,14 @@ func main() {
 
 	// Init providers
 	bcryptProvider := provider.NewBcryptProvider("salt", 10)
+	jwtProvider := provider.NewJWTProvider("")
 
 	// Init repositories
 	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
 
 	// Init services
 	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthService(bcryptProvider, userRepo)
+	authService := service.NewAuthService(bcryptProvider, jwtProvider, userRepo)
 
 	// Application enums
 	host := "localhost"

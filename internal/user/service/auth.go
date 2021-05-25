@@ -2,31 +2,49 @@ package service
 
 import (
 	"grpc-go-templete/internal/user/domain"
+	"grpc-go-templete/internal/user/provider"
 	"grpc-go-templete/internal/user/repository"
-	"grpc-go-templete/pkg/provider"
 )
 
 type AuthService struct {
-	bcryptProvider *provider.BcryptProvider
+	passwordHashProvider provider.PasswordHashProvider
+	tokenProvider        provider.TokenProvider
 
 	userRepo repository.UserRepository
 }
 
-func NewAuthService(bcryptProvider *provider.BcryptProvider, userRepo repository.UserRepository) *AuthService {
+type LoginResult struct {
+	Profile *domain.User
+	Token   string
+}
+
+func NewAuthService(
+	passwordHashProvider provider.PasswordHashProvider,
+	tokenProvider provider.TokenProvider,
+	userRepo repository.UserRepository,
+) *AuthService {
 	return &AuthService{
-		bcryptProvider: bcryptProvider,
-		userRepo:       userRepo,
+		passwordHashProvider: passwordHashProvider,
+		tokenProvider:        tokenProvider,
+		userRepo:             userRepo,
 	}
 }
 
-func (s *AuthService) Login(username, password string) error {
+func (s *AuthService) Login(username, password string) (*LoginResult, error) {
 	user, err := s.userRepo.GetOne(&domain.User{Username: username})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = s.bcryptProvider.ComparePassword(password, user.Password)
+	err = s.passwordHashProvider.ComparePassword(password, user.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	token, err := s.tokenProvider.GenerateToken()
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResult{
+		Profile: user,
+		Token:   token,
+	}, nil
 }
