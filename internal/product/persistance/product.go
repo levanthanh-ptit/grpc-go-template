@@ -26,7 +26,7 @@ func (p productPersistance) GetOne(query interface{}) (data *domain.Product, err
 	return
 }
 
-func (p productPersistance) GetAll(query, options interface{}) (data []*domain.Product, err error) {
+func (p productPersistance) GetAll(query interface{}) (data []*domain.Product, err error) {
 	qResult, err := p.coll.Find(context.Background(), query)
 	if err != nil {
 		return
@@ -56,6 +56,19 @@ func (p productPersistance) Create(entity *domain.Product) (data *domain.Product
 	return
 }
 
-func (p productPersistance) Update(query interface{}, update *domain.Product, options interface{}) (data []*domain.Product, err error) {
-	return []*domain.Product{}, nil
+func (p productPersistance) Update(query interface{}, update *domain.Product) (data []*domain.Product, err error) {
+	updateResult, err := p.coll.UpdateMany(context.Background(), query, update)
+	if err != nil {
+		return
+	}
+	if updateResult.UpsertedCount == 0 {
+		return
+	}
+	qResult, err := p.coll.Find(context.Background(), query)
+	if err != nil {
+		return
+	}
+	data = make([]*domain.Product, 0)
+	err = qResult.Decode(data)
+	return
 }
