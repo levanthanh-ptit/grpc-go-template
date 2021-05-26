@@ -3,23 +3,20 @@ package application
 import (
 	"context"
 	"grpc-go-templete/internal/user/helper"
-	"grpc-go-templete/pkg/pb/product_pb"
+	"grpc-go-templete/pkg/grpc_utils"
 	"grpc-go-templete/pkg/pb/user_pb"
 )
 
 func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*user_pb.User, error) {
+	err := in.Validate()
+	if err != nil {
+		return nil, grpc_utils.MakeInvalidArgument(err)
+	}
 	user, err := s.userService.CreateUser(helper.ToUser(in))
 	if err != nil {
 		return nil, err
 	}
-	resp := helper.ToUserGRPC(user)
-	_, err = s.ProductsClient.CreateProduct(ctx, &product_pb.Product{
-		Name: *user.Name,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+	return helper.ToUserGRPC(user), nil
 }
 
 func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {

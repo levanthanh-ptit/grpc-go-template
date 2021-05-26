@@ -1,1 +1,1 @@
-rm -rf $(find ./pkg/pb -iname "*pb.go") $(find ./pkg/pb -iname "*pb.gw.go")
+rm -rf $(find ./pkg/pb -iname "*pb.go") $(find ./pkg/pb -iname "*pb.gw.go") $(find ./pkg/pb -iname "*pb.validate.go")

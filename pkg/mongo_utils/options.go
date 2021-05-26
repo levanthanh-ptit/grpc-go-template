@@ -1,4 +1,4 @@
-package mongo_helper
+package mongo_utils
 
 import "go.mongodb.org/mongo-driver/mongo/options"
 
