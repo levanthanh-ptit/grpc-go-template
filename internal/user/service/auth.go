@@ -39,7 +39,7 @@ func (s *AuthService) Login(username, password string) (*LoginResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	token, err := s.tokenProvider.GenerateToken()
+	token, err := s.tokenProvider.GenerateToken(user)
 	if err != nil {
 		return nil, err
 	}
