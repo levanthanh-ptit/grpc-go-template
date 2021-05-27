@@ -24,7 +24,7 @@ func main() {
 	userRepo.CreateIndexes()
 
 	// Init services
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(bcryptProvider, userRepo)
 	authService := service.NewAuthService(bcryptProvider, jwtProvider, userRepo)
 
 	// Application enums

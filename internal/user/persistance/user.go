@@ -35,6 +35,7 @@ func (p userPersistance) CreateIndexes() {
 
 func (p userPersistance) GetOne(query interface{}) (data *domain.User, err error) {
 	qResult := p.coll.FindOne(context.Background(), query)
+	data = &domain.User{}
 	err = qResult.Decode(data)
 	return
 }

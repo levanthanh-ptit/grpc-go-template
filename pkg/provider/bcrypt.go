@@ -23,5 +23,5 @@ func (b *BcryptProvider) HashPassword(password string) (string, error) {
 }
 
 func (b *BcryptProvider) ComparePassword(password, hashPassword string) error {
-	return bcrypt.CompareHashAndPassword([]byte(password), []byte(hashPassword))
+	return bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 }
