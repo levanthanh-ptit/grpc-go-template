@@ -2,10 +2,11 @@ package main
 
 import (
 	"grpc-go-templete/internal/user/application"
-	"grpc-go-templete/internal/user/persistance"
+	"grpc-go-templete/internal/user/infrastructure"
 	"grpc-go-templete/internal/user/service"
 	"grpc-go-templete/pkg/provider"
 	"log"
+	"time"
 )
 
 func main() {
@@ -17,10 +18,19 @@ func main() {
 
 	// Init providers
 	bcryptProvider := provider.NewBcryptProvider("salt", 10)
-	jwtProvider := provider.NewJWTProvider("")
+	jwtSigningKey := "strongJwTKeY"
+	jwtAccessTokenDuration := 5 * time.Minute
+	jwtRefreshTokenDuration := 24 * time.Hour
+	jwtProvider := provider.NewJWTProvider(
+		jwtSigningKey,
+		jwtAccessTokenDuration,
+		jwtRefreshTokenDuration,
+		infrastructure.AddClaims,
+		infrastructure.ExtractClaims,
+	)
 
 	// Init repositories
-	userRepo := persistance.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
+	userRepo := infrastructure.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
 	userRepo.CreateIndexes()
 
 	// Init services

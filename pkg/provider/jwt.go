@@ -7,7 +7,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-type AddClaimsFunc = func(data *jwt.MapClaims)
+type AddClaimsFunc = func(target jwt.MapClaims, data interface{})
 
 type ExtractClaimsFunc = func(data jwt.Claims) interface{}
 
@@ -40,11 +40,11 @@ func NewJWTProvider(
 
 func (p *JWTProvider) GenerateToken(data interface{}) (string, error) {
 	claims := jwt.MapClaims{}
-	p.addClaims(&claims)
+	p.addClaims(claims, data)
 	claims["authorized"] = true
-	claims["exp"] = time.Now().Add(p.accessTokenDuration)
+	claims["exp"] = time.Now().Add(p.accessTokenDuration).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := at.SignedString(p.signingKey)
+	token, err := at.SignedString([]byte(p.signingKey))
 	if err != nil {
 		return "", err
 	}
