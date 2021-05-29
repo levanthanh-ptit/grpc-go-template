@@ -32,6 +32,8 @@ service Users {
             body: "*"
         };
     };
+
+    rpc VerifyAuthToken(VerifyAuthTokenRequest) returns (VerifyAuthTokenResponse) {}
 }
 
 message User {
@@ -70,4 +72,13 @@ message LoginRequest {
 message LoginResponse {
     User profile = 1;
     string token = 2;
+}
+
+message VerifyAuthTokenRequest {
+    string token = 1;
+}
+
+message VerifyAuthTokenResponse {
+    bool authenticated = 1;
+    User payload = 2;
 }

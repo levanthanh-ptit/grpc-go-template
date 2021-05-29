@@ -2,7 +2,7 @@ package main
 
 import (
 	"grpc-go-templete/internal/product/application"
-	"grpc-go-templete/internal/product/persistance"
+	"grpc-go-templete/internal/product/infrastructure"
 	"grpc-go-templete/internal/product/service"
 	"grpc-go-templete/pkg/provider"
 )
@@ -15,7 +15,7 @@ func main() {
 	}
 
 	// Init repositories
-	productRepo := persistance.NewProductPersistance(mongoProvider.GetDatabase("product_dev"))
+	productRepo := infrastructure.NewProductPersistance(mongoProvider.GetDatabase("product_dev"))
 
 	// Init services
 	productService := service.NewProductService(productRepo)

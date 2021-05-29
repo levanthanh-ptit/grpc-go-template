@@ -11,7 +11,6 @@ protoc -I ./api/proto \
    --grpc-gateway_out ./pkg/pb \
    --grpc-gateway_opt paths=source_relative \
    --grpc-gateway_opt logtostderr=true \
-   --grpc-gateway_opt generate_unbound_methods=true \
    -I $protoc_gen_validate_path \
    --validate_out ./pkg/pb \
    --validate_opt lang=go \

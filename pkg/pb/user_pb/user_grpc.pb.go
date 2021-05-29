@@ -23,6 +23,7 @@ type UsersClient interface {
 	GetUserList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListResponse, error)
 	// Authentication and authorization
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	VerifyAuthToken(ctx context.Context, in *VerifyAuthTokenRequest, opts ...grpc.CallOption) (*VerifyAuthTokenResponse, error)
 }
 
 type usersClient struct {
@@ -69,6 +70,15 @@ func (c *usersClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.
 	return out, nil
 }
 
+func (c *usersClient) VerifyAuthToken(ctx context.Context, in *VerifyAuthTokenRequest, opts ...grpc.CallOption) (*VerifyAuthTokenResponse, error) {
+	out := new(VerifyAuthTokenResponse)
+	err := c.cc.Invoke(ctx, "/user_pb.Users/VerifyAuthToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -78,6 +88,7 @@ type UsersServer interface {
 	GetUserList(context.Context, *UserListRequest) (*UserListResponse, error)
 	// Authentication and authorization
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	VerifyAuthToken(context.Context, *VerifyAuthTokenRequest) (*VerifyAuthTokenResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -96,6 +107,9 @@ func (UnimplementedUsersServer) GetUserList(context.Context, *UserListRequest) (
 }
 func (UnimplementedUsersServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUsersServer) VerifyAuthToken(context.Context, *VerifyAuthTokenRequest) (*VerifyAuthTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyAuthToken not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -182,6 +196,24 @@ func _Users_Login_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_VerifyAuthToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyAuthTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).VerifyAuthToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_pb.Users/VerifyAuthToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).VerifyAuthToken(ctx, req.(*VerifyAuthTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -204,6 +236,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _Users_Login_Handler,
+		},
+		{
+			MethodName: "VerifyAuthToken",
+			Handler:    _Users_VerifyAuthToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
