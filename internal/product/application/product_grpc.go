@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"grpc-go-templete/internal/product/service"
 	"grpc-go-templete/pkg/pb/product_pb"
+	"grpc-go-templete/pkg/pb/user_pb"
 	"log"
 	"net"
 	"net/http"
@@ -18,6 +19,10 @@ type productsGrpcServer struct {
 	host string
 	port string
 
+	// Clients
+	UsersClient user_pb.UsersClient
+
+	// Services
 	productService *service.ProductService
 }
 
@@ -65,7 +70,7 @@ func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gw
 	}
 	gwServer = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", host, port),
-		Handler: gwmux,
+		Handler: productsServer.AuthGuard(gwmux),
 	}
 	log.Printf("Product gRPC-Gateway - Started on http://%s:%s", host, port)
 	log.Fatalln(gwServer.ListenAndServe())

@@ -16,3 +16,8 @@ func (s *usersGrpcServer) Login(ctx context.Context, in *user_pb.LoginRequest) (
 		Token:   result.Token,
 	}, nil
 }
+
+func (s *usersGrpcServer) VerifyAuthToken(ctx context.Context, in *user_pb.VerifyAuthTokenRequest) (*user_pb.VerifyAuthTokenResponse, error) {
+	// TODO: Implement auth check
+	return &user_pb.VerifyAuthTokenResponse{Authenticated: false}, nil
+}
