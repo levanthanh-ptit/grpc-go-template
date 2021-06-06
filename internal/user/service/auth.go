@@ -13,11 +13,6 @@ type AuthService struct {
 	userRepo repository.UserRepository
 }
 
-type LoginResult struct {
-	Profile *domain.User
-	Token   string
-}
-
 func NewAuthService(
 	passwordHashProvider provider.PasswordHashProvider,
 	tokenProvider provider.TokenProvider,
@@ -28,6 +23,11 @@ func NewAuthService(
 		tokenProvider:        tokenProvider,
 		userRepo:             userRepo,
 	}
+}
+
+type LoginResult struct {
+	Profile *domain.User
+	Token   string
 }
 
 func (s *AuthService) Login(username, password string) (*LoginResult, error) {
@@ -46,5 +46,21 @@ func (s *AuthService) Login(username, password string) (*LoginResult, error) {
 	return &LoginResult{
 		Profile: user,
 		Token:   token,
+	}, nil
+}
+
+type VerifyTokenResult struct {
+	Authenticated bool
+	Payload       *domain.User
+}
+
+func (s *AuthService) VerifyToken(token string) (*VerifyTokenResult, error) {
+	currentUser, err := s.tokenProvider.VerifyToken(token)
+	if err != nil {
+		return nil, err
+	}
+	return &VerifyTokenResult{
+		Authenticated: true,
+		Payload:       currentUser.(*domain.User),
 	}, nil
 }
