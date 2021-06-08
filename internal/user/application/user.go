@@ -3,14 +3,15 @@ package application
 import (
 	"context"
 	"grpc-go-templete/internal/user/helper"
-	"grpc-go-templete/pkg/grpc_utils"
 	"grpc-go-templete/pkg/pb/user_pb"
+
+	"github.com/levanthanh-ptit/go-ez/ez_grpc"
 )
 
 func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*user_pb.User, error) {
 	err := in.Validate()
 	if err != nil {
-		return nil, grpc_utils.MakeInvalidArgument(err)
+		return nil, ez_grpc.MakeInvalidArgument(err)
 	}
 	user, err := s.userService.CreateUser(helper.ToUser(in))
 	if err != nil {

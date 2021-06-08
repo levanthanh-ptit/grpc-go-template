@@ -4,24 +4,25 @@ import (
 	"grpc-go-templete/internal/user/application"
 	"grpc-go-templete/internal/user/infrastructure"
 	"grpc-go-templete/internal/user/service"
-	"grpc-go-templete/pkg/provider"
 	"log"
 	"time"
+
+	"github.com/levanthanh-ptit/go-ez/ez_provider"
 )
 
 func main() {
 	// Init Database
-	mongoProvider, err := provider.NewMongoProvider("mongodb://localhost:27017")
+	mongoProvider, err := ez_provider.NewMongoProvider("mongodb://localhost:27017")
 	if err != nil {
 		panic("DB not connect")
 	}
 
 	// Init providers
-	bcryptProvider := provider.NewBcryptProvider("salt", 10)
+	bcryptProvider := ez_provider.NewBcryptProvider("salt", 10)
 	jwtSigningKey := "strongJwTKeY"
 	jwtAccessTokenDuration := 5 * time.Minute
 	jwtRefreshTokenDuration := 24 * time.Hour
-	jwtProvider := provider.NewJWTProvider(
+	jwtProvider := ez_provider.NewJWTProvider(
 		jwtSigningKey,
 		jwtAccessTokenDuration,
 		jwtRefreshTokenDuration,

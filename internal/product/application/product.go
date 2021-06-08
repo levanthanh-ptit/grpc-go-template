@@ -3,14 +3,15 @@ package application
 import (
 	"context"
 	"grpc-go-templete/internal/product/helper"
-	"grpc-go-templete/pkg/grpc_utils"
 	"grpc-go-templete/pkg/pb/product_pb"
+
+	"github.com/levanthanh-ptit/go-ez/ez_grpc"
 )
 
 func (s *productsGrpcServer) CreateProduct(ctx context.Context, in *product_pb.Product) (*product_pb.Product, error) {
 	err := in.Validate()
 	if err != nil {
-		return nil, grpc_utils.MakeInvalidArgument(err)
+		return nil, ez_grpc.MakeInvalidArgument(err)
 	}
 	product, err := s.productService.CreateProduct(helper.ToProduct(in))
 	if err != nil {
