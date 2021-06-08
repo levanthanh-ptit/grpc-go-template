@@ -5,6 +5,7 @@ import (
 	"grpc-go-templete/internal/product/infrastructure"
 	"grpc-go-templete/internal/product/service"
 	"grpc-go-templete/pkg/provider"
+	"log"
 )
 
 func main() {
@@ -22,14 +23,26 @@ func main() {
 
 	// Application enums
 	host := "localhost"
-	grpcPort := "8083"
-	grpcGwPort := "8093"
+	grpcPort := "8082"
+	grpcGwPort := "8092"
+	userServerAddress := "localhost:8091"
 
 	// Init Application
 	productGrpcServer := application.NewProductsGrpcServer(host, grpcPort, productService)
 
 	// Start GRPC server
 	go productGrpcServer.StartGrpcServer()
+
+	// Init Clients
+	userConn, err := productGrpcServer.RegisterUsersClient(userServerAddress)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var closeClients = func() {
+		userConn.Close()
+	}
+	defer closeClients()
 
 	// Start GRPC Getway
 	productGrpcServer.StartGrpcGetway(host, grpcGwPort)

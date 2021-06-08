@@ -3,6 +3,7 @@ package product_pb;
 option go_package = "grpc-go-templete/pkg/pb/product_pb";
 
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 service Products {
     rpc CreateProduct (Product) returns (Product) {
@@ -25,7 +26,7 @@ service Products {
 
 message Product {
     string id = 1;
-    string name = 2;
+    string name = 2 [(validate.rules).string.min_len = 1];
 }
 
 message ProductRequest {
