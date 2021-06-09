@@ -13,7 +13,7 @@ func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*us
 	if err != nil {
 		return nil, ez_grpc.MakeInvalidArgument(err)
 	}
-	user, err := s.userService.CreateUser(helper.ToUser(in))
+	user, err := s.userService.CreateUser(ctx, helper.ToUser(in))
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +21,17 @@ func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*us
 }
 
 func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
-	resp := &user_pb.UserResponse{}
-	return resp, nil
+	userID, err := helper.FromRawID(in.Id)
+	if err != nil {
+		return nil, ez_grpc.MakeInvalidArgument(err)
+	}
+	userList, err := s.userService.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, ez_grpc.MakeInvalidArgument(err)
+	}
+	return &user_pb.UserResponse{
+		Data: helper.ToUserGRPC(userList),
+	}, nil
 }
 
 func (s *usersGrpcServer) GetUserList(ctx context.Context, in *user_pb.UserListRequest) (*user_pb.UserListResponse, error) {

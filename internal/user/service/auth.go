@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"grpc-go-templete/internal/user/domain"
 	"grpc-go-templete/internal/user/provider"
 	"grpc-go-templete/internal/user/repository"
@@ -30,8 +31,8 @@ type LoginResult struct {
 	Token   string
 }
 
-func (s *AuthService) Login(username, password string) (*LoginResult, error) {
-	user, err := s.userRepo.GetOne(&domain.User{Username: username})
+func (s *AuthService) Login(ctx context.Context, username, password string) (*LoginResult, error) {
+	user, err := s.userRepo.GetOne(ctx, &domain.User{Username: username})
 	if err != nil {
 		return nil, err
 	}

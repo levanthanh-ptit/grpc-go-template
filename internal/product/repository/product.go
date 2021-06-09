@@ -1,11 +1,14 @@
 package repository
 
-import "grpc-go-templete/internal/product/domain"
+import (
+	"context"
+	"grpc-go-templete/internal/product/domain"
+)
 
 type ProductRepository interface {
-	GetOne(query interface{}) (*domain.Product, error)
-	GetAll(query interface{}) ([]*domain.Product, error)
-	Count(query interface{}) (*int64, error)
-	Create(entity *domain.Product) (*domain.Product, error)
-	Update(query interface{}, update *domain.Product) ([]*domain.Product, error)
+	GetOne(ctx context.Context, query interface{}) (*domain.Product, error)
+	GetAll(ctx context.Context, query interface{}, limit, offset int64) ([]*domain.Product, error)
+	Count(ctx context.Context, query interface{}) (*int64, error)
+	Create(ctx context.Context, entity *domain.Product) (*domain.Product, error)
+	Update(ctx context.Context, query interface{}, update *domain.Product, limit, offset int64) ([]*domain.Product, error)
 }

@@ -13,7 +13,7 @@ func (s *productsGrpcServer) CreateProduct(ctx context.Context, in *product_pb.P
 	if err != nil {
 		return nil, ez_grpc.MakeInvalidArgument(err)
 	}
-	product, err := s.productService.CreateProduct(helper.ToProduct(in))
+	product, err := s.productService.CreateProduct(ctx, helper.ToProduct(in))
 	if err != nil {
 		return nil, err
 	}

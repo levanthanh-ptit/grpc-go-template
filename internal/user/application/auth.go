@@ -7,7 +7,7 @@ import (
 )
 
 func (s *usersGrpcServer) Login(ctx context.Context, in *user_pb.LoginRequest) (*user_pb.LoginResponse, error) {
-	result, err := s.authService.Login(in.Username, in.Password)
+	result, err := s.authService.Login(ctx, in.Username, in.Password)
 	if err != nil {
 		return nil, err
 	}

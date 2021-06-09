@@ -8,26 +8,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type productPersistance struct {
+type ProductPersistance struct {
 	repository.ProductRepository
 	coll *mongo.Collection
 }
 
-func NewProductPersistance(db *mongo.Database) *productPersistance {
+func NewProductPersistance(db *mongo.Database) *ProductPersistance {
 	productCollection := db.Collection("products")
-	return &productPersistance{
+	return &ProductPersistance{
 		coll: productCollection,
 	}
 }
 
-func (p productPersistance) GetOne(query interface{}) (data *domain.Product, err error) {
-	qResult := p.coll.FindOne(context.Background(), query)
+func (p ProductPersistance) GetOne(ctx context.Context, query interface{}) (data *domain.Product, err error) {
+	qResult := p.coll.FindOne(ctx, query)
+	data = &domain.Product{}
 	err = qResult.Decode(data)
 	return
 }
 
-func (p productPersistance) GetAll(query interface{}) (data []*domain.Product, err error) {
-	qResult, err := p.coll.Find(context.Background(), query)
+func (p ProductPersistance) GetAll(ctx context.Context, query interface{}, limit, offset int64) (data []*domain.Product, err error) {
+	qResult, err := p.coll.Find(ctx, query)
 	if err != nil {
 		return
 	}
@@ -36,18 +37,18 @@ func (p productPersistance) GetAll(query interface{}) (data []*domain.Product, e
 	return
 }
 
-func (p productPersistance) Count(query interface{}) (data *int64, err error) {
-	count, err := p.coll.CountDocuments(context.Background(), query)
+func (p ProductPersistance) Count(ctx context.Context, query interface{}) (data *int64, err error) {
+	count, err := p.coll.CountDocuments(ctx, query)
 	return &count, err
 }
 
-func (p productPersistance) Create(entity *domain.Product) (data *domain.Product, err error) {
-	insertResult, err := p.coll.InsertOne(context.Background(), entity)
+func (p ProductPersistance) Create(ctx context.Context, entity *domain.Product) (data *domain.Product, err error) {
+	insertResult, err := p.coll.InsertOne(ctx, entity)
 	if err != nil {
 		return nil, err
 	}
 	id := insertResult.InsertedID.(domain.ID)
-	qResult := p.coll.FindOne(context.Background(), &domain.Product{ID: id})
+	qResult := p.coll.FindOne(ctx, &domain.Product{ID: id})
 	if err = qResult.Err(); err != nil {
 		return
 	}
@@ -56,15 +57,15 @@ func (p productPersistance) Create(entity *domain.Product) (data *domain.Product
 	return
 }
 
-func (p productPersistance) Update(query interface{}, update *domain.Product) (data []*domain.Product, err error) {
-	updateResult, err := p.coll.UpdateMany(context.Background(), query, update)
+func (p ProductPersistance) Update(ctx context.Context, query interface{}, update *domain.Product, limit, offset int64) (data []*domain.Product, err error) {
+	updateResult, err := p.coll.UpdateMany(ctx, query, update)
 	if err != nil {
 		return
 	}
 	if updateResult.UpsertedCount == 0 {
 		return
 	}
-	qResult, err := p.coll.Find(context.Background(), query)
+	qResult, err := p.coll.Find(ctx, query)
 	if err != nil {
 		return
 	}
