@@ -6,7 +6,7 @@ import (
 	"grpc-go-templete/pkg/pb/user_pb"
 )
 
-func (s *usersGrpcServer) Login(ctx context.Context, in *user_pb.LoginRequest) (*user_pb.LoginResponse, error) {
+func (s *GrpcServer) Login(ctx context.Context, in *user_pb.LoginRequest) (*user_pb.LoginResponse, error) {
 	result, err := s.authService.Login(ctx, in.Username, in.Password)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func (s *usersGrpcServer) Login(ctx context.Context, in *user_pb.LoginRequest) (
 	}, nil
 }
 
-func (s *usersGrpcServer) VerifyAuthToken(ctx context.Context, in *user_pb.VerifyAuthTokenRequest) (*user_pb.VerifyAuthTokenResponse, error) {
+func (s *GrpcServer) VerifyAuthToken(ctx context.Context, in *user_pb.VerifyAuthTokenRequest) (*user_pb.VerifyAuthTokenResponse, error) {
 	result, err := s.authService.VerifyToken(in.Token)
 	if err != nil {
 		return nil, err

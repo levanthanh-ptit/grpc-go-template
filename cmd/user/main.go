@@ -31,7 +31,7 @@ func main() {
 	)
 
 	// Init repositories
-	userRepo := infrastructure.NewUserPersistance(mongoProvider.GetDatabase("user_dev"))
+	userRepo := infrastructure.NewUserRepositoryMongo(mongoProvider.GetDatabase("user_dev"))
 	userRepo.CreateIndexes()
 
 	// Init services
@@ -45,10 +45,10 @@ func main() {
 	productServerAddress := "localhost:8082"
 
 	// Init Application
-	userGrpcServer := application.NewUserGrpcServer(host, grpcPort, userService, authService)
+	userGrpcServer := application.NewGrpcServer(host, grpcPort, userService, authService)
 
 	// Start GRPC server
-	go userGrpcServer.StartUserGrpcServer()
+	go userGrpcServer.Serve()
 
 	// Init Clients
 	productConn, err := userGrpcServer.RegisterProductsClient(productServerAddress)

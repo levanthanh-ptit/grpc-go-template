@@ -11,22 +11,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// UserPersistance is persistance model
-type UserPersistance struct {
+// UserRepositoryMongo is persistance model
+type UserRepositoryMongo struct {
 	repository.UserRepository
 	coll *mongo.Collection
 }
 
-// NewUserPersistance return new UserPersistance instance
-func NewUserPersistance(db *mongo.Database) *UserPersistance {
+// NewUserRepositoryMongo return new UserPersistance instance
+func NewUserRepositoryMongo(db *mongo.Database) *UserRepositoryMongo {
 	userCollection := db.Collection("users")
-	return &UserPersistance{
+	return &UserRepositoryMongo{
 		coll: userCollection,
 	}
 }
 
 // CreateIndexes method to create DB indexes
-func (p UserPersistance) CreateIndexes() {
+func (p UserRepositoryMongo) CreateIndexes() {
 	indexModels := []mongo.IndexModel{
 		{
 			Keys:    bson.D{primitive.E{Key: "username", Value: 1}},
@@ -37,7 +37,7 @@ func (p UserPersistance) CreateIndexes() {
 }
 
 // GetOne is method to get one User
-func (p UserPersistance) GetOne(ctx context.Context, query interface{}) (data *domain.User, err error) {
+func (p UserRepositoryMongo) GetOne(ctx context.Context, query interface{}) (data *domain.User, err error) {
 	qResult := p.coll.FindOne(ctx, query)
 	data = &domain.User{}
 	err = qResult.Decode(data)
@@ -45,7 +45,7 @@ func (p UserPersistance) GetOne(ctx context.Context, query interface{}) (data *d
 }
 
 //GetAll is method to get Users
-func (p UserPersistance) GetAll(ctx context.Context, query interface{}, limit, offset int64) (data []*domain.User, err error) {
+func (p UserRepositoryMongo) GetAll(ctx context.Context, query interface{}, limit, offset int64) (data []*domain.User, err error) {
 	qResult, err := p.coll.Find(ctx, query)
 	if err != nil {
 		return
@@ -56,13 +56,13 @@ func (p UserPersistance) GetAll(ctx context.Context, query interface{}, limit, o
 }
 
 // Count is method to count Users
-func (p UserPersistance) Count(ctx context.Context, query interface{}) (data *int64, err error) {
+func (p UserRepositoryMongo) Count(ctx context.Context, query interface{}) (data *int64, err error) {
 	count, err := p.coll.CountDocuments(ctx, query)
 	return &count, err
 }
 
 // Create is method to create Users
-func (p UserPersistance) Create(ctx context.Context, entity *domain.User) (data *domain.User, err error) {
+func (p UserRepositoryMongo) Create(ctx context.Context, entity *domain.User) (data *domain.User, err error) {
 	insertResult, err := p.coll.InsertOne(ctx, entity)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (p UserPersistance) Create(ctx context.Context, entity *domain.User) (data 
 }
 
 // Update is method to create User(s)
-func (p UserPersistance) Update(ctx context.Context, query interface{}, update *domain.User, limit, offset int64) (data []*domain.User, err error) {
+func (p UserRepositoryMongo) Update(ctx context.Context, query interface{}, update *domain.User, limit, offset int64) (data []*domain.User, err error) {
 	updateResult, err := p.coll.UpdateMany(ctx, query, update)
 	if err != nil {
 		return

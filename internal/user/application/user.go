@@ -8,7 +8,7 @@ import (
 	"github.com/levanthanh-ptit/go-ez/ez_grpc"
 )
 
-func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*user_pb.User, error) {
+func (s *GrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*user_pb.User, error) {
 	err := in.Validate()
 	if err != nil {
 		return nil, ez_grpc.MakeInvalidArgument(err)
@@ -20,7 +20,7 @@ func (s *usersGrpcServer) CreateUser(ctx context.Context, in *user_pb.User) (*us
 	return helper.ToUserGRPC(user), nil
 }
 
-func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
+func (s *GrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) (*user_pb.UserResponse, error) {
 	userID, err := helper.FromRawID(in.Id)
 	if err != nil {
 		return nil, ez_grpc.MakeInvalidArgument(err)
@@ -34,7 +34,7 @@ func (s *usersGrpcServer) GetUser(ctx context.Context, in *user_pb.UserRequest) 
 	}, nil
 }
 
-func (s *usersGrpcServer) GetUserList(ctx context.Context, in *user_pb.UserListRequest) (*user_pb.UserListResponse, error) {
+func (s *GrpcServer) GetUserList(ctx context.Context, in *user_pb.UserListRequest) (*user_pb.UserListResponse, error) {
 	resp := &user_pb.UserListResponse{}
 	return resp, nil
 }

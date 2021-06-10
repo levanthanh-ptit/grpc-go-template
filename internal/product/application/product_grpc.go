@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type productsGrpcServer struct {
+type ProductsGrpcServer struct {
 	product_pb.UnimplementedProductsServer
 	host string
 	port string
@@ -26,8 +26,8 @@ type productsGrpcServer struct {
 	productService *service.ProductService
 }
 
-func NewProductsGrpcServer(host, port string, productService *service.ProductService) *productsGrpcServer {
-	return &productsGrpcServer{
+func NewProductsGrpcServer(host, port string, productService *service.ProductService) *ProductsGrpcServer {
+	return &ProductsGrpcServer{
 		host: host,
 		port: port,
 
@@ -35,25 +35,25 @@ func NewProductsGrpcServer(host, port string, productService *service.ProductSer
 	}
 }
 
-func (productsServer *productsGrpcServer) StartGrpcServer() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", productsServer.host, productsServer.port))
+func (s *ProductsGrpcServer) StartGrpcServer() {
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.host, s.port))
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to listen:", err)
 	}
 	// Create a gRPC server object
-	s := grpc.NewServer()
+	server := grpc.NewServer()
 	// Attach the service to the server
-	product_pb.RegisterProductsServer(s, productsServer)
+	product_pb.RegisterProductsServer(server, s)
 	// Serve gRPC Server
-	log.Printf("Product gRPC - Started on %s:%s", productsServer.host, productsServer.port)
-	log.Fatalln(s.Serve(lis))
+	log.Printf("Product gRPC - Started on %s:%s", s.host, s.port)
+	log.Fatalln(server.Serve(lis))
 }
 
-func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
+func (s *ProductsGrpcServer) StartGrpcGetway(host, port string) (gwServer *http.Server) {
 	// Dial to GRPC server
 	grpcConn, err := grpc.DialContext(
 		context.Background(),
-		fmt.Sprintf("%s:%s", productsServer.host, productsServer.port),
+		fmt.Sprintf("%s:%s", s.host, s.port),
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -70,7 +70,7 @@ func (productsServer *productsGrpcServer) StartGrpcGetway(host, port string) (gw
 	}
 	gwServer = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", host, port),
-		Handler: productsServer.AuthGuard(gwmux),
+		Handler: s.AuthGuard(gwmux),
 	}
 	log.Printf("Product gRPC-Gateway - Started on http://%s:%s", host, port)
 	log.Fatalln(gwServer.ListenAndServe())

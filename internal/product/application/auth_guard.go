@@ -16,7 +16,7 @@ var (
 	_authenticationFailedError = ez_grpc.MakeUnavailable(errors.New("AUTHENTICATION_FAILED"))
 )
 
-func (productsServer *productsGrpcServer) AuthGuard(next http.Handler) http.Handler {
+func (s *ProductsGrpcServer) AuthGuard(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -28,7 +28,7 @@ func (productsServer *productsGrpcServer) AuthGuard(next http.Handler) http.Hand
 			ez_http.JSONError(w, ez_grpc.ToErrorJSONStatus(_unauthenticatedError), http.StatusUnauthorized)
 			return
 		}
-		data, err := productsServer.UsersClient.VerifyAuthToken(context.Background(), &user_pb.VerifyAuthTokenRequest{Token: token})
+		data, err := s.UsersClient.VerifyAuthToken(context.Background(), &user_pb.VerifyAuthTokenRequest{Token: token})
 		if err != nil || data == nil {
 			ez_http.JSONError(w, ez_grpc.ToErrorJSONStatus(_authenticationFailedError), http.StatusBadGateway)
 			return
