@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"grpc-go-templete/pkg/pb/product_pb"
 	"grpc-go-templete/pkg/pb/user_pb"
 	"log"
 
@@ -16,6 +17,9 @@ type GrpcGetwayServer struct {
 
 	targetAddr string
 	targetConn *grpc.ClientConn
+
+	usersClient user_pb.UsersClient
+	usersConn   *grpc.ClientConn
 }
 
 // NewGrpcGetway constructor
@@ -25,7 +29,10 @@ func NewGrpcGetway(targetAddr, host, port string) *GrpcGetwayServer {
 		GrpcGetwayServer: *base,
 		targetAddr:       targetAddr,
 	}
-	s.WithHost(host).WithPort(port).WithClientRegister(s.RegisterGrpcClient)
+	s.WithHost(host).
+		WithPort(port).
+		WithClientRegister(s.RegisterGrpcClient).
+		WithHandler(s.AuthGuard)
 	return s
 }
 
@@ -41,7 +48,7 @@ func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
 	if err != nil {
 		log.Fatalln("Product gRPC - Failed to dial server:", err)
 	}
-	err = user_pb.RegisterUsersHandler(context.Background(), gwmux, s.targetConn)
+	err = product_pb.RegisterProductsHandler(context.Background(), gwmux, s.targetConn)
 	if err != nil {
 		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
 	}
@@ -50,4 +57,5 @@ func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
 // Close close clients...
 func (s *GrpcGetwayServer) Close() {
 	s.targetConn.Close()
+	s.usersConn.Close()
 }

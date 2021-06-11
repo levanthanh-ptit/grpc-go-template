@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"grpc-go-templete/internal/user/application"
 	"grpc-go-templete/internal/user/infrastructure"
 	"grpc-go-templete/internal/user/service"
-	"log"
 	"time"
 
 	"github.com/levanthanh-ptit/go-ez/ez_provider"
@@ -42,26 +42,13 @@ func main() {
 	host := "localhost"
 	grpcPort := "8081"
 	grpcGwPort := "8091"
-	productServerAddress := "localhost:8082"
 
 	// Init Application
-	userGrpcServer := application.NewGrpcServer(host, grpcPort, userService, authService)
+	grpcServer := application.NewGrpcServer(host, grpcPort, userService, authService)
+	grpcGetway := application.NewGrpcGetway(fmt.Sprintf("%s:%s", host, grpcPort), host, grpcGwPort)
 
 	// Start GRPC server
-	go userGrpcServer.Serve()
-
-	// Init Clients
-	productConn, err := userGrpcServer.RegisterProductsClient(productServerAddress)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var closeClients = func() {
-		productConn.Close()
-	}
-	defer closeClients()
-
-	// Start GRPC Getway
-	userGrpcServer.StartGrpcGetwayServer(host, grpcGwPort)
-
+	go grpcServer.ServerTCP()
+	defer grpcGetway.Close()
+	grpcGetway.Server()
 }

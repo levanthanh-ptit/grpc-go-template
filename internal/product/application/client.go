@@ -7,8 +7,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func (productsServer *ProductsGrpcServer) RegisterUsersClient(address string) (conn *grpc.ClientConn, err error) {
-	conn, productsServer.UsersClient, err = user_pb.GetClient(address, grpc.WithInsecure())
+// RegisterUsersClient register user client
+func (s *GrpcGetwayServer) RegisterUsersClient(address string) (conn *grpc.ClientConn, err error) {
+	conn, s.usersClient, err = user_pb.GetClient(address, grpc.WithInsecure(), grpc.WithBlock())
 	log.Println("User service client registered.")
 	return
 }

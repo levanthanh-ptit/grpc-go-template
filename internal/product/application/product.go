@@ -8,7 +8,7 @@ import (
 	"github.com/levanthanh-ptit/go-ez/ez_grpc"
 )
 
-func (s *ProductsGrpcServer) CreateProduct(ctx context.Context, in *product_pb.Product) (*product_pb.Product, error) {
+func (s *GrpcServer) CreateProduct(ctx context.Context, in *product_pb.Product) (*product_pb.Product, error) {
 	err := in.Validate()
 	if err != nil {
 		return nil, ez_grpc.MakeInvalidArgument(err)
@@ -20,6 +20,6 @@ func (s *ProductsGrpcServer) CreateProduct(ctx context.Context, in *product_pb.P
 	return helper.ToProductGRPC(product), nil
 }
 
-func (s *ProductsGrpcServer) GetProduct(ctx context.Context, in *product_pb.ProductRequest) (*product_pb.ProductResponse, error) {
+func (s *GrpcServer) GetProduct(ctx context.Context, in *product_pb.ProductRequest) (*product_pb.ProductResponse, error) {
 	return &product_pb.ProductResponse{Data: &product_pb.Product{}}, nil
 }

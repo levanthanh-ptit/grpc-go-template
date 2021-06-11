@@ -1,44 +1,38 @@
 package application
 
 import (
-	"grpc-go-templete/internal/user/service"
+	"grpc-go-templete/internal/product/service"
 	"grpc-go-templete/pkg/pb/product_pb"
-	"grpc-go-templete/pkg/pb/user_pb"
 
 	"github.com/levanthanh-ptit/go-grpc-kit/server"
 	"google.golang.org/grpc"
 )
 
+// GrpcServer server object
 type GrpcServer struct {
 	server.GrpcServer
-	user_pb.UnimplementedUsersServer
-
-	// Clients
-	ProductsClient product_pb.ProductsClient
+	product_pb.UnimplementedProductsServer
 
 	// Services
-	userService *service.UserService
-	authService *service.AuthService
+	productService *service.ProductService
 }
 
 // NewGrpcServer constructor
 func NewGrpcServer(
 	host,
 	port string,
-	userService *service.UserService,
-	authService *service.AuthService,
+	productService *service.ProductService,
 ) *GrpcServer {
 	base := server.NewGrpcServer("user_grpc_server")
 	s := &GrpcServer{
-		GrpcServer:  *base,
-		userService: userService,
-		authService: authService,
+		GrpcServer:     *base,
+		productService: productService,
 	}
 	s.WithHost(host).WithPort(port).WithGprpcRegister(s.RegisterServer)
 	return s
 }
 
-// RegisterServer register func
+// RegisterServer register server
 func (s *GrpcServer) RegisterServer(server *grpc.Server) {
-	user_pb.RegisterUsersServer(server, s)
+	product_pb.RegisterProductsServer(server, s)
 }
