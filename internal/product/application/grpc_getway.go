@@ -29,10 +29,10 @@ func NewGrpcGetway(targetAddr, host, port string) *GrpcGetwayServer {
 		GrpcGetwayServer: *base,
 		targetAddr:       targetAddr,
 	}
-	s.WithHost(host).
-		WithPort(port).
-		WithClientRegister(s.RegisterGrpcClient).
-		WithHandler(s.AuthGuard)
+	s.WithHost(host)
+	s.WithPort(port)
+	s.WithClientRegister(s.RegisterGrpcClient)
+	s.WithHandler(s.AuthGuard)
 	return s
 }
 

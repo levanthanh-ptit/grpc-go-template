@@ -14,7 +14,8 @@ type GrpcServer struct {
 	user_pb.UnimplementedUsersServer
 
 	// Clients
-	ProductsClient product_pb.ProductsClient
+	productClient product_pb.ProductsClient
+	productConn   *grpc.ClientConn
 
 	// Services
 	userService *service.UserService
@@ -34,11 +35,17 @@ func NewGrpcServer(
 		userService: userService,
 		authService: authService,
 	}
-	s.WithHost(host).WithPort(port).WithGprpcRegister(s.RegisterServer)
+	s.WithHost(host)
+	s.WithPort(port)
+	s.WithGprpcRegister(s.RegisterServer)
 	return s
 }
 
 // RegisterServer register func
 func (s *GrpcServer) RegisterServer(server *grpc.Server) {
 	user_pb.RegisterUsersServer(server, s)
+}
+
+func (s *GrpcServer) Close() {
+	s.productConn.Close()
 }

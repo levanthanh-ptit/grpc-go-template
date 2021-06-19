@@ -28,11 +28,16 @@ func NewGrpcServer(
 		GrpcServer:     *base,
 		productService: productService,
 	}
-	s.WithHost(host).WithPort(port).WithGprpcRegister(s.RegisterServer)
+	s.WithHost(host)
+	s.WithPort(port)
+	s.WithGprpcRegister(s.RegisterServer)
 	return s
 }
 
 // RegisterServer register server
 func (s *GrpcServer) RegisterServer(server *grpc.Server) {
 	product_pb.RegisterProductsServer(server, s)
+}
+
+func (s *GrpcServer) Close() {
 }
