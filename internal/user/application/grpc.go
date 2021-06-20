@@ -42,8 +42,9 @@ func NewGrpcServer(
 }
 
 // RegisterServer register func
-func (s *GrpcServer) RegisterServer(server *grpc.Server) {
+func (s *GrpcServer) RegisterServer(server *grpc.Server) (err error) {
 	user_pb.RegisterUsersServer(server, s)
+	return
 }
 
 func (s *GrpcServer) Close() {

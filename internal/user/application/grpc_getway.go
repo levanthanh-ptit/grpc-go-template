@@ -32,8 +32,7 @@ func NewGrpcGetway(targetAddr, host, port string) *GrpcGetwayServer {
 }
 
 // RegisterGrpcClient attach gRPC
-func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
-	var err error = nil
+func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) (err error) {
 	s.targetConn, err = grpc.DialContext(
 		context.Background(),
 		s.targetAddr,
@@ -41,12 +40,16 @@ func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) {
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatalln("Product gRPC - Failed to dial server:", err)
+		log.Println("User gRPC - Failed to dial server")
+		return
 	}
 	err = user_pb.RegisterUsersHandler(context.Background(), gwmux, s.targetConn)
 	if err != nil {
-		log.Fatalln("Product gRPC-Gateway - Failed to register gateway:", err)
+		log.Println("User gRPC-Gateway - Failed to register gateway")
+		return
 	}
+
+	return
 }
 
 // Close close clients...

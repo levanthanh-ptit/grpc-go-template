@@ -8,8 +8,8 @@ import (
 )
 
 // RegisterUsersClient register user client
-func (s *GrpcGetwayServer) RegisterUsersClient(address string) (conn *grpc.ClientConn, err error) {
-	conn, s.usersClient, err = user_pb.GetClient(address, grpc.WithInsecure(), grpc.WithBlock())
+func (s *GrpcGetwayServer) RegisterUsersClient(address string) (err error) {
+	s.usersConn, s.usersClient, err = user_pb.GetClient(address, grpc.WithInsecure(), grpc.WithBlock())
 	log.Println("User service client registered.")
 	return
 }

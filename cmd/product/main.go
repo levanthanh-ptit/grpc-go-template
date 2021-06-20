@@ -35,9 +35,9 @@ func main() {
 	grpcGetway.RegisterUsersClient(userServerAddress)
 
 	// Start GRPC server
-	go grpcServer.ServerTCP()
+	go grpcServer.ServeTCP()
 
 	// Start GRPC Getway
 	defer grpcGetway.Close()
-	grpcGetway.Server()
+	grpcGetway.Serve()
 }
