@@ -39,7 +39,7 @@ func main() {
 	authService := service.NewAuthService(bcryptProvider, jwtProvider, userRepo)
 
 	// Application enums
-	host := "localhost"
+	host := "127.0.0.1"
 	grpcPort := "8081"
 	grpcGwPort := "8091"
 
