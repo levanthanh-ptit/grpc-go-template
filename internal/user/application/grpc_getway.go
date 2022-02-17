@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc"
 )
 
-// GrpcGetwayServer is getway server
-type GrpcGetwayServer struct {
-	server.GrpcGetwayServer
+// GrpcGatewayServer is getway server
+type GrpcGatewayServer struct {
+	server.GrpcGatewayServer
 
 	targetAddr string
 	targetConn *grpc.ClientConn
 }
 
-// NewGrpcGetway constructor
-func NewGrpcGetway(targetAddr, host, port string) *GrpcGetwayServer {
-	base := server.NewGrpcGetwayServer("user_grpc_getway")
-	s := &GrpcGetwayServer{
-		GrpcGetwayServer: *base,
-		targetAddr:       targetAddr,
+// NewGrpcGateway constructor
+func NewGrpcGateway(targetAddr, host, port string) *GrpcGatewayServer {
+	base := server.NewGrpcGatewayServer("user_grpc_getway")
+	s := &GrpcGatewayServer{
+		GrpcGatewayServer: *base,
+		targetAddr:        targetAddr,
 	}
 	s.WithHost(host)
 	s.WithPort(port)
@@ -32,7 +32,7 @@ func NewGrpcGetway(targetAddr, host, port string) *GrpcGetwayServer {
 }
 
 // RegisterGrpcClient attach gRPC
-func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) (err error) {
+func (s *GrpcGatewayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) (err error) {
 	s.targetConn, err = grpc.DialContext(
 		context.Background(),
 		s.targetAddr,
@@ -53,6 +53,6 @@ func (s *GrpcGetwayServer) RegisterGrpcClient(gwmux *runtime.ServeMux) (err erro
 }
 
 // Close close clients...
-func (s *GrpcGetwayServer) Close() {
+func (s *GrpcGatewayServer) Close() {
 	s.targetConn.Close()
 }

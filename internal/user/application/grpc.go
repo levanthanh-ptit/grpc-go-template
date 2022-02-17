@@ -37,7 +37,7 @@ func NewGrpcServer(
 	}
 	s.WithHost(host)
 	s.WithPort(port)
-	s.WithGprpcRegister(s.RegisterServer)
+	s.WithGrpcRegister(s.RegisterServer)
 	return s
 }
 

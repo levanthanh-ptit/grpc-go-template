@@ -8,7 +8,7 @@ import (
 )
 
 // RegisterUsersClient register user client
-func (s *GrpcGetwayServer) RegisterUsersClient(address string) (err error) {
+func (s *GrpcGatewayServer) RegisterUsersClient(address string) (err error) {
 	s.usersConn, s.usersClient, err = user_pb.GetClient(address, grpc.WithInsecure(), grpc.WithBlock())
 	log.Println("User service client registered.")
 	return

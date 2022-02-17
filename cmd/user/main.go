@@ -45,10 +45,10 @@ func main() {
 
 	// Init Application
 	grpcServer := application.NewGrpcServer(host, grpcPort, userService, authService)
-	grpcGetway := application.NewGrpcGetway(fmt.Sprintf("%s:%s", host, grpcPort), host, grpcGwPort)
+	grpcGateway := application.NewGrpcGateway(fmt.Sprintf("%s:%s", host, grpcPort), host, grpcGwPort)
 
 	// Start GRPC server
 	go grpcServer.ServeTCP()
-	defer grpcGetway.Close()
-	grpcGetway.Serve()
+	defer grpcGateway.Close()
+	grpcGateway.Serve()
 }

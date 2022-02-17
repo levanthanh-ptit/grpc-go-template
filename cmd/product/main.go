@@ -31,13 +31,13 @@ func main() {
 
 	// Init Application
 	grpcServer := application.NewGrpcServer(host, grpcPort, productService)
-	grpcGetway := application.NewGrpcGetway(fmt.Sprintf("%s:%s", host, grpcPort), host, grpcGwPort)
-	grpcGetway.RegisterUsersClient(userServerAddress)
+	grpcGateway := application.NewGrpcGateway(fmt.Sprintf("%s:%s", host, grpcPort), host, grpcGwPort)
+	grpcGateway.RegisterUsersClient(userServerAddress)
 
 	// Start GRPC server
 	go grpcServer.ServeTCP()
 
-	// Start GRPC Getway
-	defer grpcGetway.Close()
-	grpcGetway.Serve()
+	// Start GRPC Gateway
+	defer grpcGateway.Close()
+	grpcGateway.Serve()
 }
