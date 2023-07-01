@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package auth.token.v1;
+
+option go_package = "auth/token/v1";
+
+message AuthTokenResponse {
+  string accessToken = 1;
+}
