@@ -1,17 +1,23 @@
 version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: template/pkg
+    except:
+      - buf.build/googleapis/googleapis
 plugins:
-  - name: go
-    out: proto
+  - plugin: buf.build/protocolbuffers/go
+    out: pkg
     opt:
       - paths=source_relative
-  - name: go-grpc
-    out: proto
+  - plugin: buf.build/grpc/go
+    out: pkg
     opt:
       - paths=source_relative
       - require_unimplemented_servers=false
-  - name: grpc-gateway
-    out: proto
+  - plugin: buf.build/grpc-ecosystem/gateway:v2.16.0
+    out: pkg
     opt:
       - paths=source_relative
-  - name: openapiv2
-    out: proto
+  - plugin: buf.build/grpc-ecosystem/openapiv2:v2.16.0
+    out: docs/openapi

@@ -3,15 +3,24 @@ syntax = "proto3";
 package auth.basic_auth.v1;
 
 import "google/api/annotations.proto";
-import "auth/token/v1/token.proto";
+import "proto/auth/token/v1/token.proto";
 
 option go_package = "auth/basic_auth/v1";
+
+service BasicAuthService {
+  rpc SignUp(SignUpRequest) returns (SignUpResponse) {
+    option (google.api.http) = {
+      post: "/v1/basic_auth/sign_up"
+      body: "*"
+    };
+  }
+}
 
 message SignUpRequest {
   string email = 1;
   string password = 2;
 }
 
-service BasicAuthService {
-  rpc SignUp(SignUpRequest) returns (AuthTokenResponse);
+message SignUpResponse {
+  auth.token.v1.AuthToken token = 1;
 }

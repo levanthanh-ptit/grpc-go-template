@@ -4,6 +4,6 @@ package auth.token.v1;
 
 option go_package = "auth/token/v1";
 
-message AuthTokenResponse {
+message AuthToken {
   string accessToken = 1;
 }
